@@ -8,6 +8,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import CodeFile from './models/CodeFile.js';
+import fs from 'fs';
 
 config();
 
@@ -89,6 +90,14 @@ app.post("/run", async (req, res) => {
         console.log("Saved code:", savedCode);
 
         console.log({ filePath, output });
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error(`Failed to delete file at ${filePath}:`, err);
+            } else {
+                console.log(`Successfully deleted file at ${filePath}`);
+            }
+        });
+
         // return res.json({ filePath, output });
 
     } catch (err) {
@@ -97,6 +106,14 @@ app.post("/run", async (req, res) => {
         newCode["output"] = JSON.stringify(err);
         const savedCode = await newCode.save();
         console.log(savedCode);
+
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error(`Failed to delete file at ${filePath}:`, err);
+            } else {
+                console.log(`Successfully deleted file at ${filePath}`);
+            }
+        });
         // console.log(err.message);
         // res.status(500).json({ "err": err.message });
     }
